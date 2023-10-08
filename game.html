@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Tic Tac Toe</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+<body>
+    <div class="container-fluid center">
+        <div id="message" style="display: block">Tic Tac Toe</div>
+            <div class="button-container">
+                <button type="button" class="btn btn-primary" id="startGame" style="display : block">Start Game</button>
+                
+            </div>
+            <button type="button" class="btn btn-primary" id="play-again" style="display : none">Play Again</button>
+            
+        <script>
+
+            let board = [
+                ['', '', ''],
+                ['', '', ''],
+                ['', '', '']
+            ];
+
+            let currentPlayer = 'X';
+            let gameOver = false;
+            let gameDraw = document.createTextNode("DRAW!");
+            let playerWin = document.createTextNode("PLAYER WIN!");
+            let messageDiv = document.getElementById("message");
+
+            let canvasClicked = false; 
+            let gameStarted = false;
+            
+
+            function setup() {
+                var cnv = createCanvas(600, 600);
+                var x = (windowWidth - width) / 2;
+                var y = (windowHeight - height) / 2;
+                cnv.position(x, y);
+                canvas.addEventListener('click', function(event) {
+                    if (!gameStarted) {
+                        event.preventDefault();
+                    }
+                });
+
+                menu();
+            }
+            function menu(){
+                textSize(30);
+                strokeWeight(0.5);
+                textAlign(CENTER, CENTER);
+                text('CS ELECTIVE LAB 1', 6, 140, width);
+                textSize(25);
+                text('By John Cedrick Chu', 6, 180, width);
+                textSize(44);
+                let startButton = document.getElementById("startGame");
+                startButton.addEventListener('click', startGame);
+            }
+
+            function startGame() {
+                gameStarted = true; 
+                document.getElementById("startGame").style.display = "none";
+                drawBoard();
+            }
+
+            function draw() {
+                if (gameOver) {
+                    return;
+                }
+            }
+
+            function drawBoard() {
+                let w = width / 3;
+                let h = height / 3;
+                background(220);
+
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+
+                        let x = i * w;
+                        let y = j * h;
+
+                        let tile = board[i][j];
+                        textSize(80);
+                        textAlign(CENTER, CENTER);
+                        
+                        stroke(0);
+                        if (tile == 'X'){
+                            fill(0, 102, 153);
+                        }
+                        else if (tile == 'O'){
+                            fill(0, 0 , 0);
+                        }
+                        if (tile == 'X' || tile == 'O') {
+                            text(tile, x + w / 2, y + h / 2);
+                        }
+                    }
+                }
+                grid();
+                document.getElementById("startGame").style.display = "none";
+            }
+
+            function grid() {
+                strokeWeight(4);
+                let w = width / 3;
+                let h = height / 3;
+                line(0, w, width, w);
+                line(0, w * 2, width, w * 2);
+                line(w, 0, w, height);
+                line(w * 2, 0, w * 2, height);
+            }
+
+            function mouseClicked() {
+                if (!gameStarted) {
+                    return; 
+                }
+                
+                if (gameOver) {
+                    return;
+                }
+
+                let w = width / 3;
+                let h = height / 3;
+                let col = floor(mouseX / w);
+                let row = floor(mouseY / h);
+
+                if (board[col][row] == '') {
+                    board[col][row] = currentPlayer;
+
+                    currentPlayer = (currentPlayer === 'X') ? 'O' : 'X';
+                    drawBoard();
+                    if (checkWin(col, row)) {
+                        gameOver = true;
+                        let playerX = 'X';
+                        let playerO = 'O';
+                        if (currentPlayer == playerX) {
+                            messageDiv.innerText = "Player " + playerO + " WIN!";
+                        }
+                        else if (currentPlayer == playerO){
+                            messageDiv.innerText = "Player " + playerX + " WIN!";
+                        }
+                        document.getElementById("play-again").style.display = "block";
+
+                    } else if (boardIsFull()) {
+                        gameOver = true;
+                        messageDiv.innerText = "DRAW";
+                        document.getElementById("play-again").style.display = "block";
+
+                    }
+                    
+                }
+
+            }
+
+            function checkWin(col, row) {
+                let player = board[col][row];
+
+                // Check row
+                for (let i = 0; i < 3; i++) {
+                    if (board[i][row] != player) {
+                        break;
+                    }
+                    if (i == 2) {
+                        let x = (row + .5) * (width / 3)
+                        strokeWeight(4);
+                        stroke(255, 0, 0); 
+                        line(0, x, width, x);
+                        return true;
+                    }
+                }
+
+                // Check column
+                for (let i = 0; i < 3; i++) {
+                    if (board[col][i] != player) {
+                        break;
+                    }
+                    if (i == 2) {
+                            let x = (col + 0.5) * (height / 3);
+                            strokeWeight(4);
+                            stroke(255, 0, 0); 
+                            line(x, 0, x, height);
+                            return true;
+                    }
+                }
+
+                // Check diagonal
+                if (col == row) {
+                    for (let i = 0; i < 3; i++) {
+                        if (board[i][i] != player) {
+                            break;
+                        }
+                        if (i == 2) {
+                            strokeWeight(4);
+                            stroke(255, 0, 0); 
+                            line(0, 0, width, height);
+                            return true;
+                        }
+                    }
+                }
+
+                // Check anti-diagonal
+                if (col + row == 2) {
+                    for (let i = 0; i < 3; i++) {
+                        if (board[i][2 - i] != player) {
+                            break;
+                        }
+                        if (i == 2) {
+                            line(0, height, width, 0);
+                            strokeWeight(4);
+                            stroke(255, 0, 0); 
+                            line(0, y, width, y);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            function boardIsFull() {
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if (board[i][j] == '') {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            
+            document.getElementById("play-again").addEventListener('click', resetGame);
+
+            function resetGame() {
+                board = [
+                    ['', '', ''],
+                    ['', '', ''],
+                    ['', '', '']
+                ];
+                currentPlayer = 'X';
+                gameOver = false;
+                messageDiv.innerText = "Tic Tac Toe";
+                document.getElementById("play-again").style.display = "none";
+                drawBoard();
+            }
+        </script>
+    </div>
+</body>
+</html>
